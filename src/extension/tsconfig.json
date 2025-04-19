@@ -1,0 +1,15 @@
+{
+  "extends": "@tsconfig/node18/tsconfig.json",
+  "compilerOptions": {
+    "strict": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "outDir": "../..",
+    "rootDir": "..",
+    "resolveJsonModule": true,
+    "types": ["node"], // Ensure Node.js types are included
+    "tsBuildInfoFile": ".tsbuildinfo",
+    "incremental": true
+  },
+  "exclude": ["../graphics/**/*", "../dashboard/**/*"]
+}

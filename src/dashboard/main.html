@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Main Dashboard</title>
+    <style>
+      body,
+      html {
+        box-sizing: border-box;
+        height: auto;
+        margin: 0;
+        height: 100vh;
+        width: 100vw;
+      }
+      #bracket-container {
+        width: 100%;
+        aspect-ratio: 16 / 9;
+        display: flex;
+        flex-direction: row;
+        justify-content: center;
+        align-items: center;
+        overflow: hidden;
+        background-color: black;
+      }
+      #bracket {
+        aspect-ratio: 16 / 9;
+        width: 50%;
+        height: 50%;
+        outline: 1px solid white;
+      }
+      #controls {
+        width: 100%;
+        background-color: blue;
+        color: white;
+        display: flex;
+      }
+      fieldset > label {
+        display: block;
+      }
+      fieldset > label > input[type="radio"] {
+        display: none;
+      }
+      label:has(input[type="radio"]:checked) {
+        border: 1px solid white;
+        border-radius: .5em;
+        background-color: #68f;
+      }
+      label {
+        padding: 0.25em;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="bracket-container">
+      <div id="bracket" class="bracket"></div>
+    </div>
+    <div id="controls">
+      <fieldset id="tournament-fieldset"></fieldset>
+      <fieldset id="event-fieldset"></fieldset>
+    </div>
+  </body>
+  <script>
+    let exports = {};
+  </script>
+  <script src="main.js"></script>
+</html>

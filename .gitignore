@@ -1,0 +1,10 @@
+node_modules
+.tsbuildinfo
+.DS_store
+keys.json
+/dashboard
+/extension
+/graphics
+/db
+/logs
+/cfg
