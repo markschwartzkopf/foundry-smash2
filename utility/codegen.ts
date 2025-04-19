@@ -10,7 +10,7 @@ const config: CodegenConfig = {
     },
   },
   generates: {
-    'src/extension/startgg-types.ts': {
+    'src/extension/types/startgg-types.ts': {
       plugins: ['typescript'],
     },
   }
