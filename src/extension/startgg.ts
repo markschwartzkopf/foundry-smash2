@@ -102,7 +102,11 @@ function startggRefresh() {
           user.tournaments &&
           typeof user.tournaments === 'object' &&
           'nodes' in user.tournaments &&
-          Array.isArray(user.tournaments.nodes)
+          Array.isArray(user.tournaments.nodes) &&
+          'name' in user &&
+          typeof user.name === 'string' &&
+          'slug' in user &&
+          typeof user.slug === 'string'
         ) {
           const repTournaments: TournamentsRep = [];
           user.tournaments.nodes.forEach((tournament) => {
@@ -117,9 +121,12 @@ function startggRefresh() {
             `Fetched tournaments from StartGG user: ${user.name} (${user.slug})`,
           );
           if (selectedEvent.value.tournament !== null) {
-            const tournament = tournamentsRep.value[selectedEvent.value.tournament];
+            const tournament =
+              tournamentsRep.value[selectedEvent.value.tournament];
             if (tournament) {
-              return startggFetch(APIstrings.getTournamentEvents(tournament.id));
+              return startggFetch(
+                APIstrings.getTournamentEvents(tournament.id),
+              );
             } else return Promise.resolve(null);
           }
         }
@@ -127,7 +134,13 @@ function startggRefresh() {
     })
     .then((resp) => {
       if (!resp) return Promise.resolve(null);
-      if ('tournament' in resp && typeof resp.tournament === 'object' && resp.tournament !== null && 'events' in resp.tournament && Array.isArray(resp.tournament.events)) {
+      if (
+        'tournament' in resp &&
+        typeof resp.tournament === 'object' &&
+        resp.tournament !== null &&
+        'events' in resp.tournament &&
+        Array.isArray(resp.tournament.events)
+      ) {
         const events = resp.tournament.events;
         const repEvents: EventsRep = [];
         events.forEach((event) => {
@@ -164,19 +177,41 @@ function startggFetchEventSets(
     console.log(`Fetching sets for event ${eventId} page ${page}`);
     startggFetch(APIstrings.getEventSets(eventId, page))
       .then((resp) => {
-        if (!resp || !('event' in resp) || !resp.event || typeof resp.event !== 'object' || resp.event === null) {
+        if (
+          !resp ||
+          !('event' in resp) ||
+          !resp.event ||
+          typeof resp.event !== 'object' ||
+          resp.event === null
+        ) {
           return Promise.reject('No event in response from StartGG API');
         }
-        if (!('sets' in resp.event) || !resp.event.sets || typeof resp.event.sets !== 'object' || resp.event.sets === null) {
+        if (
+          !('sets' in resp.event) ||
+          !resp.event.sets ||
+          typeof resp.event.sets !== 'object' ||
+          resp.event.sets === null
+        ) {
           return Promise.reject('No sets in response from StartGG API');
         }
-        if (!('nodes' in resp.event.sets) || !Array.isArray(resp.event.sets.nodes)) {
+        if (
+          !('nodes' in resp.event.sets) ||
+          !Array.isArray(resp.event.sets.nodes)
+        ) {
           return Promise.reject('No nodes in response from StartGG API');
         }
-        if (!('pageInfo' in resp.event.sets) || !resp.event.sets.pageInfo || typeof resp.event.sets.pageInfo !== 'object' || resp.event.sets.pageInfo === null) {
+        if (
+          !('pageInfo' in resp.event.sets) ||
+          !resp.event.sets.pageInfo ||
+          typeof resp.event.sets.pageInfo !== 'object' ||
+          resp.event.sets.pageInfo === null
+        ) {
           return Promise.reject('No pageInfo in response from StartGG API');
         }
-        if (!('totalPages' in resp.event.sets.pageInfo) || typeof resp.event.sets.pageInfo.totalPages !== 'number') {
+        if (
+          !('totalPages' in resp.event.sets.pageInfo) ||
+          typeof resp.event.sets.pageInfo.totalPages !== 'number'
+        ) {
           return Promise.reject('No totalPages in response from StartGG API');
         }
         const sets = resp.event.sets.nodes;
@@ -276,51 +311,69 @@ function isUsableSet(set: unknown): set is UsableStartGGSet {
   }
   if (
     set.slots.every((slot: unknown) => {
-      return !(typeof slot === 'object' && slot !== null) || !('prereqType' in slot) || slot.prereqType === 'bye';
+      return (
+        !(typeof slot === 'object' && slot !== null) ||
+        !('prereqType' in slot) ||
+        slot.prereqType === 'bye'
+      );
     })
   ) {
     //console.log(`Skipping set with no players`);
     return false;
   }
-  set.slots.forEach((slot: any) => {
-    if (!slot) {
+  set.slots.forEach((slot: unknown) => {
+    if (!slot || typeof slot !== 'object' || slot === null) {
       nodecg.log.error(
         `Slot is null or undefined. Offending set: ${JSON.stringify(set)}`,
       );
       return false;
     }
-    if (typeof slot.prereqId !== 'string' && slot.prereqId !== null) {
+    if (
+      !('prereqId' in slot) ||
+      (typeof slot.prereqId !== 'string' && slot.prereqId !== null)
+    ) {
       nodecg.log.error(
         `Slot has no prereqId. Offending set: ${JSON.stringify(set)}`,
       );
       return false;
     }
-    if (typeof slot.prereqType !== 'string') {
+    if (!('prereqType' in slot) || typeof slot.prereqType !== 'string') {
       nodecg.log.error(
         `Slot has no prereqType. Offending set: ${JSON.stringify(set)}`,
       );
       return false;
     }
-    if (!slot.seed && slot.prereqType !== 'bye') {
+    if ((!('seed' in slot) || !slot.seed) && slot.prereqType !== 'bye') {
       nodecg.log.error(
         `Slot has no seed. Offending set: ${JSON.stringify(set)}`,
       );
       return false;
     }
-    if (slot.seed && typeof slot.seed.seedNum !== 'number') {
+    if (
+      'seed' in slot &&
+      typeof slot.seed === 'object' &&
+      slot.seed !== null &&
+      'seedNum' in slot.seed &&
+      typeof slot.seed.seedNum !== 'number'
+    ) {
       nodecg.log.error(
         `Slot has no seedNum. Offending set: ${JSON.stringify(set)}`,
       );
       return false;
     }
-    if (!slot.entrant) {
-      if (slot.entrant !== null) {
-        nodecg.log.error(
-          `Slot has no entrant. Offending set: ${JSON.stringify(set)}`,
-        );
-        return false;
-      }
-    } else if (typeof slot.entrant.name !== 'string') {
+    if (
+      !('entrant' in slot) ||
+      !slot.entrant ||
+      typeof slot.entrant !== 'object' ||
+      slot.entrant === null
+    ) {
+      nodecg.log.error(
+        `Slot has no entrant. Offending set: ${JSON.stringify(set)}`,
+      );
+    } else if (
+      !('name' in slot.entrant) ||
+      typeof slot.entrant.name !== 'string'
+    ) {
       nodecg.log.error(
         `Slot has no entrant name. Offending set: ${JSON.stringify(set)}`,
       );
@@ -357,44 +410,61 @@ function isUsableSet(set: unknown): set is UsableStartGGSet {
       }
     }
   });
-  if (typeof set.id !== 'string' && typeof set.id !== 'number') {
+  if (
+    !('id' in set) ||
+    (typeof set.id !== 'string' && typeof set.id !== 'number')
+  ) {
     nodecg.log.error(`Set has no id. Offending set: ${JSON.stringify(set)}`);
     return false;
   }
-  if (!set.phaseGroup) {
+  if (
+    !('phaseGroup' in set) ||
+    !set.phaseGroup ||
+    typeof set.phaseGroup !== 'object' ||
+    set.phaseGroup === null
+  ) {
     nodecg.log.error(
       `Set has no phaseGroup. Offending set: ${JSON.stringify(set)}`,
     );
     return false;
   }
   if (
-    typeof set.phaseGroup.id !== 'string' &&
-    typeof set.phaseGroup.id !== 'number'
+    !('id' in set.phaseGroup) ||
+    (typeof set.phaseGroup.id !== 'string' &&
+      typeof set.phaseGroup.id !== 'number')
   ) {
     nodecg.log.error(
       `Set has no phaseGroup id. Offending set: ${JSON.stringify(set)}`,
     );
     return false;
   }
-  if (!set.phaseGroup.phase) {
+  if (
+    !('phase' in set.phaseGroup) ||
+    !set.phaseGroup.phase ||
+    typeof set.phaseGroup.phase !== 'object' ||
+    set.phaseGroup.phase === null
+  ) {
     nodecg.log.error(
       `Set has no phaseGroup phase. Offending set: ${JSON.stringify(set)}`,
     );
     return false;
   }
-  if (typeof set.phaseGroup.phase.phaseOrder !== 'number') {
+  if (
+    !('phaseOrder' in set.phaseGroup.phase) ||
+    typeof set.phaseGroup.phase.phaseOrder !== 'number'
+  ) {
     nodecg.log.error(
       `Set has no phaseGroup phaseOrder. Offending set: ${JSON.stringify(set)}`,
     );
     return false;
   }
-  if (typeof set.wPlacement !== 'number') {
+  if (!('wPlacement' in set) || typeof set.wPlacement !== 'number') {
     nodecg.log.error(
       `Set has no wPlacement. Offending set: ${JSON.stringify(set)}`,
     );
     return false;
   }
-  if (typeof set.round !== 'number') {
+  if (!('round' in set) || typeof set.round !== 'number') {
     nodecg.log.error(`Set has no round. Offending set: ${JSON.stringify(set)}`);
     return false;
   }
