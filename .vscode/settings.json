@@ -1,17 +1,19 @@
 {
+  "files.eol": "\n",
+  "eslint.format.enable": false,
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
+  "[typescript]": { "editor.defaultFormatter": "esbenp.prettier-vscode" },
+  "prettier.endOfLine": "lf",
   "prettier.singleQuote": true,
   "prettier.tabWidth": 2,
+  "prettier.ignorePath": ".prettierignore",
   "editor.detectIndentation": false,
   "editor.tabSize": 2,
-  "editor.defaultFormatter": "esbenp.prettier-vscode",
   "editor.formatOnSave": false,
   "[xml]": {
     "editor.defaultFormatter": "DotJoshJohnson.xml"
   },
   "[svg]": {
-    "editor.defaultFormatter": "esbenp.prettier-vscode"
-  },
-  "[typescript]": {
     "editor.defaultFormatter": "esbenp.prettier-vscode"
   },
   "eslint.enable": true,

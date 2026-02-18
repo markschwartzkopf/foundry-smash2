@@ -2,6 +2,14 @@ import globals from 'globals';
 import pluginJs from '@eslint/js';
 import tseslint from '@typescript-eslint/eslint-plugin';
 import tsParser from '@typescript-eslint/parser';
+const myrules = {
+  ...pluginJs.configs.recommended.rules,
+  ...tseslint.configs.recommended.rules,
+  '@typescript-eslint/ban-ts-comment': 'off', // Allow @ts-ignore comments
+  '@typescript-eslint/no-floating-promises': 'error', // Ensure promises are handled
+  '@typescript-eslint/no-explicit-any': 'warn', // Allow any type for flexibility
+  '@typescript-eslint/no-unused-vars': 'warn',
+};
 
 /** @type {import('eslint').Linter.FlatConfig[]} */
 export default [
@@ -18,15 +26,14 @@ export default [
       '@typescript-eslint': tseslint,
     },
     rules: {
-      ...pluginJs.configs.recommended.rules,
-      ...tseslint.configs.recommended.rules,
-      '@typescript-eslint/ban-ts-comment': 'off', // Allow @ts-ignore comments
-      '@typescript-eslint/no-floating-promises': 'error', // Ensure promises are handled
-      '@typescript-eslint/no-explicit-any': 'off', // Allow any type for flexibility
+      ...myrules,
     },
   },
   {
-    files: ['src/dashboard/**/*.{js,mjs,cjs,ts}', 'src/graphics/**/*.{js,mjs,cjs,ts}'],
+    files: [
+      'src/dashboard/**/*.{js,mjs,cjs,ts}',
+      'src/graphics/**/*.{js,mjs,cjs,ts}',
+    ],
     languageOptions: {
       parser: tsParser,
       parserOptions: {
@@ -38,11 +45,7 @@ export default [
       '@typescript-eslint': tseslint,
     },
     rules: {
-      ...pluginJs.configs.recommended.rules,
-      ...tseslint.configs.recommended.rules,
-      '@typescript-eslint/ban-ts-comment': 'off', // Allow @ts-ignore comments
-      '@typescript-eslint/no-floating-promises': 'error', // Ensure promises are handled
-      '@typescript-eslint/no-explicit-any': 'off', // Allow any type for flexibility
+      ...myrules,
     },
   },
 ];
